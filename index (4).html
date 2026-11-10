@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Майнд-карта · Центр интегративной психологии</title>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Inter,sans-serif;
+    background:#f4f5fa;color:#1c1f2b;-webkit-font-smoothing:antialiased;
+  }
+  /* ---------- TOPBAR ---------- */
+  .topbar{
+    position:sticky;top:0;z-index:50;
+    display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;
+    padding:14px 24px;
+    background:rgba(255,255,255,.88);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid #e6e8f0;
+  }
+  .brand{display:flex;align-items:center;gap:12px;min-width:260px}
+  .logo{
+    width:40px;height:40px;border-radius:13px;display:grid;place-items:center;font-size:19px;color:#fff;
+    background:linear-gradient(135deg,#6366f1,#a855f7 55%,#ec4899);
+    box-shadow:0 8px 18px -8px rgba(99,102,241,.85);
+  }
+  .brand h1{font-size:15px;margin:0;font-weight:680;letter-spacing:-.01em}
+  .brand p{margin:1px 0 0;font-size:11.5px;color:#8a90a4}
+  .gp{display:flex;align-items:center;gap:10px}
+  .gp-bar{width:180px;height:8px;border-radius:99px;background:#eceef6;overflow:hidden}
+  .gp-fill{height:100%;width:0;border-radius:99px;transition:width .35s ease;
+    background:linear-gradient(90deg,#6366f1,#a855f7,#ec4899)}
+  .gp-text{font-size:12px;font-weight:650;color:#5a6280;font-variant-numeric:tabular-nums}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+  .controls button{
+    font:inherit;font-size:12.5px;font-weight:600;padding:7px 13px;border-radius:9px;cursor:pointer;
+    border:1px solid #dfe3ef;background:#fff;color:#4a5168;transition:.15s;
+  }
+  .controls button:hover{background:#f4f6fd;border-color:#c8cfe8}
+  .controls button.danger{color:#dc2626;border-color:#f3d3d3}
+  .controls button.danger:hover{background:#fef2f2}
+  .switch{display:flex;align-items:center;gap:6px;font-size:12.5px;color:#5a6280;cursor:pointer;user-select:none}
+  .switch input{accent-color:#6366f1;cursor:pointer}
+
+  /* ---------- BOARD ---------- */
+  .board{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));
+    gap:18px;padding:24px;align-items:start;max-width:1900px;margin:0 auto;
+  }
+  .area{
+    background:#fff;border-radius:16px;display:flex;flex-direction:column;
+    box-shadow:0 1px 2px rgba(16,24,40,.05),0 12px 28px -18px rgba(16,24,40,.35);
+    border:1px solid #edeff6;overflow:hidden;
+  }
+  .area-head{display:flex;align-items:flex-start;gap:11px;padding:16px 16px 10px}
+  .area-icon{
+    flex:0 0 36px;width:36px;height:36px;border-radius:11px;display:grid;place-items:center;
+    font-size:17px;background:var(--c);color:#fff;box-shadow:0 6px 14px -7px var(--c);
+  }
+  .area-title-wrap{flex:1;min-width:0}
+  .area-title{
+    font-size:14.5px;font-weight:660;margin:0;line-height:1.3;outline:none;
+    border-radius:7px;padding:2px 5px;margin-left:-5px;letter-spacing:-.01em;
+  }
+  .area-title:focus{background:#eef1ff;box-shadow:0 0 0 2px #c7d0ff}
+  .area-meta{margin-top:5px;font-size:11.5px;font-weight:650;color:#8a90a4;font-variant-numeric:tabular-nums}
+  .area-bar{height:4px;background:#eef0f6;margin:0 16px;border-radius:99px;overflow:hidden}
+  .area-fill{height:100%;width:0;border-radius:99px;background:var(--c);transition:width .35s ease}
+  .stages{padding:6px 16px 0}
+
+  .stage{padding-bottom:6px}
+  .stage-title{
+    font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:#8a90a4;font-weight:750;
+    margin:14px 0 7px;outline:none;border-radius:6px;padding:2px 5px;margin-left:-5px;
+  }
+  .stage-title:focus{background:#eef1ff;box-shadow:0 0 0 2px #c7d0ff}
+
+  .tasks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
+  .task{
+    display:flex;gap:9px;align-items:flex-start;padding:6px 6px 6px 5px;border-radius:9px;
+    transition:background .12s;
+  }
+  .task:hover{background:#f7f8fd}
+  .cb{position:relative;flex:0 0 18px;width:18px;height:18px;margin-top:2px;cursor:pointer}
+  .cb input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer;width:100%;height:100%}
+  .cb .check{
+    display:block;width:18px;height:18px;border-radius:6px;border:1.5px solid #cfd4e3;background:#fff;
+    transition:.15s;position:relative;
+  }
+  .cb input:checked + .check{background:var(--c);border-color:var(--c)}
+  .cb input:checked + .check::after{
+    content:'';position:absolute;left:5.5px;top:1.5px;width:4.5px;height:9px;
+    border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);
+  }
+  .cb input:focus-visible + .check{box-shadow:0 0 0 3px #dbe0ff}
+  .task-text{
+    flex:1;font-size:13.5px;line-height:1.45;outline:none;border-radius:6px;padding:2px 4px;
+    word-break:break-word;transition:.12s;
+  }
+  .task-text:focus{background:#fff;box-shadow:0 0 0 2px #c7d0ff}
+  .task.done .task-text{color:#a7adc0;text-decoration:line-through;text-decoration-thickness:1.5px}
+  .del{
+    flex:0 0 20px;width:20px;height:20px;border:none;background:none;border-radius:6px;cursor:pointer;
+    color:#c3c8d8;font-size:15px;line-height:1;opacity:0;transition:.12s;padding:0;margin-top:1px;
+  }
+  .task:hover .del{opacity:1}
+  .del:hover{background:#fee2e2;color:#dc2626}
+
+  .add-task{
+    font:inherit;font-size:12px;font-weight:600;color:#9aa0b4;background:none;border:none;cursor:pointer;
+    padding:6px 6px;border-radius:7px;margin:2px 0 0 4px;transition:.12s;
+  }
+  .add-task:hover{color:#4a5168;background:#f2f4fb}
+  .add-stage{
+    font:inherit;font-size:12.5px;font-weight:600;margin:4px 16px 16px;padding:9px;cursor:pointer;
+    border-radius:10px;border:1px dashed #d7dbe8;background:transparent;color:#9aa0b4;transition:.15s;
+  }
+  .add-stage:hover{border-color:#b9c1e0;color:#5a6280;background:#fafbff}
+
+  .hint{font-size:11px;color:#a2a8ba;padding:0 24px 20px;text-align:center}
+  @media (max-width:600px){
+    .board{padding:12px;gap:12px;grid-template-columns:1fr}
+    .topbar{padding:12px 14px}
+    .gp-bar{width:120px}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">◎</div>
+    <div>
+      <h1>Центр интегративной психологии</h1>
+      <p>Майнд-карта запуска · Омск</p>
+    </div>
+  </div>
+
+  <div class="gp">
+    <div class="gp-bar"><div class="gp-fill" id="gpFill"></div></div>
+    <span class="gp-text" id="gpText">0 / 0</span>
+  </div>
+
+  <div class="controls">
+    <label class="switch"><input type="checkbox" id="hideDone"> скрыть выполненное</label>
+    <button id="exportBtn">Экспорт</button>
+    <button id="importBtn">Импорт</button>
+    <input type="file" id="importFile" accept="application/json" hidden>
+    <button id="resetBtn" class="danger">Сброс</button>
+  </div>
+</header>
+
+<main class="board" id="board"></main>
+<p class="hint">Клик по тексту — редактировать · Enter — сохранить · Изменения сохраняются в браузере автоматически</p>
+
+<script>
+/* ================= ДАННЫЕ ================= */
+const RAW = [
+  ['🎯','#6366f1','Стратегия и позиционирование',[
+    ['Этап 1.1 — Исследование',[
+      'Описать 3–5 портретов аудитории',
+      'Изучить конкурентов Омска: центры, клиники, частных специалистов',
+      'Сформулировать отличие: чем центр не похож на других'
+    ]],
+    ['Этап 1.2 — Концепция',[
+      'Придумать название и манифест (1 фраза)',
+      'Составить карту направлений: клиника / тело / поле / события',
+      'Определить 3–6 ключевых запросов аудитории',
+      'Прописать границы: что центр делает и что не делает'
+    ]],
+    ['Этап 1.3 — Проверка',[
+      'Проверить название на занятость в соцсетях и домене',
+      'Протестировать позиционирование на 10–15 знакомых',
+      'Задать критерии успеха на 3 и 6 месяцев'
+    ]]
+  ]],
+
+  ['⚖️','#f59e0b','Юридика и финансы',[
+    ['Этап 2.1 — Базовая схема',[
+      'Выбрать стартовую форму: самозанятый / ИП',
+      'Определить налоговый режим',
+      'Разделить услуги на немедицинские и медицинские',
+      'Проверить рекламные формулировки (без «лечения» и «диагнозов»)'
+    ]],
+    ['Этап 2.2 — Документы',[
+      'Договор с клиентом + информированное согласие',
+      'Письменные правила с коллегами: роли, оплата, ответственность',
+      'Политика конфиденциальности для сайта и соцсетей',
+      'Шаблон карточки специалиста и согласие на фото/видео'
+    ]],
+    ['Этап 2.3 — Финансовая модель',[
+      'Составить прайс: сессии, практики, группы, дебаты',
+      'Посчитать смету запуска',
+      'Рассчитать точку безубыточности',
+      'Определить схему распределения денег'
+    ]]
+  ]],
+
+  ['👥','#10b981','Команда и роли',[
+    ['Этап 3.1 — Ядро',[
+      'Распределить роли: бренд, координация записи, контент, методист',
+      'Составить список коллег и их подходов',
+      'Назначить ответственного за клиентский путь'
+    ]],
+    ['Этап 3.2 — Подбор и онбординг',[
+      'Сформулировать «суперсилу» каждого специалиста',
+      'Собрать карточки специалистов',
+      'Провести общий онбординг: правила, тон, границы, конфиденциальность'
+    ]],
+    ['Этап 3.3 — Качество',[
+      'Ввести регулярные интервизии/супервизии',
+      'Написать протокол жалоб и сложных случаев',
+      'Задать правила распределения клиентов по запросу'
+    ]]
+  ]],
+
+  ['🧩','#8b5cf6','Услуги и продукты',[
+    ['Этап 4.1 — Карта услуг',[
+      'Индивидуальное консультирование',
+      'Клиническая психология / диагностика',
+      'Телесная терапия',
+      'Психосоматическая работа',
+      'Работа с полем и энергиями — с понятными границами',
+      'Групповые форматы',
+      'Дебаты и просветительские события',
+      'Первая встреча-знакомство'
+    ]],
+    ['Этап 4.2 — Упаковка',[
+      'Описать каждую услугу: для кого, результат, как проходит, цена',
+      'Собрать пакеты: «первый шаг», курс из 4 встреч, интенсив',
+      'Прописать противопоказания и направления к врачу'
+    ]],
+    ['Этап 4.3 — Тест',[
+      'Запустить 2–3 формата на малой группе',
+      'Собрать обратную связь',
+      'Убрать или переупаковать непонятное клиентам'
+    ]]
+  ]],
+
+  ['🏠','#0ea5e9','Пространство и операции',[
+    ['Этап 5.1 — Пространство',[
+      'Решить формат: свой кабинет / аренда по часам / «центр без стен»',
+      'Спланировать зонирование',
+      'Закупить оборудование: кушетка, мат, кресла, свет, звук'
+    ]],
+    ['Этап 5.2 — Операционка',[
+      'Настроить единую систему записи и напоминаний',
+      'Подготовить шаблоны сообщений: подтверждение, напоминание, отмена',
+      'Прописать регламент: кто что делает ежедневно'
+    ]],
+    ['Этап 5.3 — Безопасность',[
+      'Задать правила конфиденциальности',
+      'Написать протокол действий при кризисном состоянии клиента',
+      'Определить хранение данных и записей'
+    ]]
+  ]],
+
+  ['🎨','#ec4899','Бренд и соцсети',[
+    ['Этап 6.1 — Айдентика',[
+      'Разработать логотип, цвета, шрифты, обложки',
+      'Определить тон голоса: спокойный, ясный, без тумана',
+      'Сделать шаблоны постов и карточек специалистов'
+    ]],
+    ['Этап 6.2 — Сообщество ВК / Telegram',[
+      'Обложка и описание: 3–6 запросов простыми словами',
+      'Собрать меню: О пространстве, Специалисты, Форматы, Дебаты, Записаться',
+      'Написать закреплённый пост «первый шаг»',
+      'Опубликовать карточки специалистов'
+    ]],
+    ['Этап 6.3 — Запуск',[
+      'Опубликовать 5–7 базовых постов',
+      'Сделать простую форму записи',
+      'Настроить гео и ключевые слова для Омска'
+    ]]
+  ]],
+
+  ['🎬','#f43f5e','Контент и видео',[
+    ['Этап 7.1 — Стратегия',[
+      'Выбрать 4–5 рубрик: мифы, практики, закулисье, карточки, анонсы',
+      'Задать формулу видео: 30–60 сек, один смысл, один призыв',
+      'Составить контент-план на 4 недели'
+    ]],
+    ['Этап 7.2 — Производство',[
+      'Написать сценарии первых 8–10 роликов',
+      'Организовать съёмку: свет, звук, вертикальный формат',
+      'Смонтировать и добавить субтитры'
+    ]],
+    ['Этап 7.3 — Дистрибуция',[
+      'Публиковать 2–3 раза в неделю',
+      'Делать нарезки из дебатов',
+      'Анализировать: какие темы дают записи'
+    ]]
+  ]],
+
+  ['🎤','#14b8a6','Дебаты и события',[
+    ['Этап 8.1 — Пилот',[
+      'Выбрать первую тему (тревога / тело / энергия и психика)',
+      'Определить формат: 2–3 спикера, модератор, 60–90 минут',
+      'Найти площадку или провести онлайн'
+    ]],
+    ['Этап 8.2 — Регулярность',[
+      'Составить сетку тем на 2–3 месяца',
+      'Настроить регистрацию и напоминания',
+      'Записывать мероприятие и нарезать на контент'
+    ]],
+    ['Этап 8.3 — Масштаб',[
+      'Найти партнёров и площадки',
+      'Решить вопрос билетов или бесплатного входа',
+      'Сделать серию: дебаты → практикум → первая консультация'
+    ]]
+  ]],
+
+  ['💬','#3b82f6','Клиентский путь',[
+    ['Этап 9.1 — Вход',[
+      'Придумать простой первый шаг (слово в сообщениях / анкета / 15 минут)',
+      'Сделать навигацию: какой специалист подходит под запрос'
+    ]],
+    ['Этап 9.2 — Первая встреча',[
+      'Написать скрипт знакомства: запрос, ожидания, границы',
+      'Настроить распределение к специалисту',
+      'Настроить напоминания и подтверждения'
+    ]],
+    ['Этап 9.3 — Удержание',[
+      'Собирать обратную связь после первой сессии',
+      'Стимулировать повторную запись',
+      'Собирать отзывы и вести базу клиентов'
+    ]]
+  ]],
+
+  ['🤝','#a855f7','Партнёрства и сообщество',[
+    ['Поиск партнёров',[
+      'Составить список площадок: йога-студии, образовательные проекты, коворкинги',
+      'Составить список экспертов для дебатов',
+      'Договориться о взаимопиаре с коллегами'
+    ]],
+    ['Развитие',[
+      'Проработать корпоративные запросы: лекции, группы',
+      'Запустить чат или клуб участников дебатов'
+    ]]
+  ]],
+
+  ['📊','#22c55e','Метрики и итерации',[
+    ['Что считать',[
+      'Воронка: охват → сообщения → первая встреча → сессия → повтор',
+      'Загрузка специалистов',
+      'Выручка и точка безубыточности',
+      'Повторные клиенты и отзывы',
+      'Источники клиентов: ВК, Telegram, рекомендации, дебаты'
+    ]],
+    ['Ритм',[
+      'Ежемесячный ревью: что сработало, что убрать, что усилить'
+    ]]
+  ]],
+
+  ['🛡️','#ef4444','Риски и безопасность',[
+    ['Юридические',[
+      'Медицинские формулировки в рекламе',
+      'Отсутствие письменных договорённостей с коллегами'
+    ]],
+    ['Репутационные',[
+      'Критика «энергий» — держать прозрачные границы методов'
+    ]],
+    ['Этические',[
+      'Информированное согласие',
+      'Конфиденциальность',
+      'Кризисные протоколы'
+    ]],
+    ['Организационные',[
+      'Зависимость от одного специалиста',
+      'Выгорание команды',
+      'Конфликты внутри ядра'
+    ]],
+    ['Финансовые',[
+      'Кассовый разрыв',
+      'Недозагрузка специалистов',
+      'Дорогая реклама без отдачи'
+    ]]
+  ]],
+
+  ['🗓️','#64748b','План по фазам',[
+    ['Фаза 0 — до запуска (2–4 недели)',[
+      'Название, манифест, 3–6 запросов',
+      'Юридическая консультация по формулировкам',
+      'Карточки 3–5 специалистов',
+      'Создать и оформить ВК и Telegram',
+      'Снять 3–5 первых видео',
+      'Выбрать тему и дату пилотных дебатов'
+    ]],
+    ['Фаза 1 — запуск (1–3 месяца)',[
+      'Провести первые дебаты',
+      'Выйти на контент 2–3 раза в неделю',
+      'Принять первых клиентов',
+      'Настроить запись, напоминания, оплату',
+      'Собрать обратную связь и отзывы'
+    ]],
+    ['Фаза 2 — стабилизация (3–6 месяцев)',[
+      'Ввести регулярные интервизии',
+      'Отладить клиентский путь и распределение',
+      'Запустить группы и практикумы',
+      'Посчитать метрики и убрать неэффективное',
+      'Решить, нужно ли физическое пространство'
+    ]],
+    ['Фаза 3 — масштаб (6–12 месяцев)',[
+      'Партнёрства и корпоративные форматы',
+      'Расширение команды',
+      'При необходимости — ООО и медицинская лицензия',
+      'Серия мероприятий и сообщество'
+    ]]
+  ]]
+];
+
+/* ================= СОСТОЯНИЕ ================= */
+const STORAGE_KEY = 'psycenter_map_v1';
+const uid = () => Math.random().toString(36).slice(2, 9);
+
+function buildState() {
+  return RAW.map(([icon, color, title, stages]) => ({
+    id: uid(), icon, color, title,
+    stages: stages.map(([stTitle, tasks]) => ({
+      id: uid(), title: stTitle,
+      tasks: tasks.map(t => ({ id: uid(), text: t, done: false }))
+    }))
+  }));
+}
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return buildState();
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed) || !parsed.length) return buildState();
+    return parsed;
+  } catch (e) {
+    return buildState();
+  }
+}
+
+let state = load();
+const save = () => {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+};
+
+/* ================= РЕНДЕР ================= */
+const board = document.getElementById('board');
+const hideDoneCb = document.getElementById('hideDone');
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function render() {
+  const hideDone = hideDoneCb.checked;
+  board.innerHTML = state.map(area => renderArea(area, hideDone)).join('');
+  updateGlobal();
+}
+
+function renderArea(area, hideDone) {
+  const all = area.stages.flatMap(s => s.tasks);
+  const done = all.filter(t => t.done).length;
+  const pct = all.length ? Math.round(done / all.length * 100) : 0;
+  const stagesHtml = area.stages.map(st => renderStage(area, st, hideDone)).join('');
+
+  return `
+  <section class="area" data-a="${area.id}" style="--c:${area.color}">
+    <header class="area-head">
+      <div class="area-icon">${area.icon}</div>
+      <div class="area-title-wrap">
+        <h2 class="area-title" contenteditable="true" spellcheck="false">${esc(area.title)}</h2>
+        <div class="area-meta">${done} / ${all.length}</div>
+      </div>
+    </header>
+    <div class="area-bar"><div class="area-fill" style="width:${pct}%"></div></div>
+    <div class="stages">${stagesHtml}</div>
+    <button class="add-stage" data-add-stage="${area.id}">+ этап</button>
+  </section>`;
+}
+
+function renderStage(area, st, hideDone) {
+  const visible = st.tasks.filter(t => !hideDone || !t.done);
+  if (hideDone && visible.length === 0) return '';
+
+  return `
+  <div class="stage" data-a="${area.id}" data-s="${st.id}">
+    <h3 class="stage-title" contenteditable="true" spellcheck="false">${esc(st.title)}</h3>
+    <ul class="tasks">${visible.map(t => renderTask(area, st, t)).join('')}</ul>
+    <button class="add-task" data-add-task="${area.id}|${st.id}">+ задача</button>
+  </div>`;
+}
+
+function renderTask(area, st, t) {
+  return `
+  <li class="task ${t.done ? 'done' : ''}" data-a="${area.id}" data-s="${st.id}" data-t="${t.id}">
+    <label class="cb"><input type="checkbox" ${t.done ? 'checked' : ''}><span class="check"></span></label>
+    <span class="task-text" contenteditable="true" spellcheck="false">${esc(t.text)}</span>
+    <button class="del" title="Удалить задачу">×</button>
+  </li>`;
+}
+
+function updateGlobal() {
+  const all = state.flatMap(a => a.stages.flatMap(s => s.tasks));
+  const done = all.filter(t => t.done).length;
+  const pct = all.length ? done / all.length * 100 : 0;
+  document.getElementById('gpFill').style.width = pct + '%';
+  document.getElementById('gpText').textContent = `${done} / ${all.length}`;
+}
+
+/* ================= ПОИСК ================= */
+const findArea = id => state.find(a => a.id === id);
+const findStage = (aId, sId) => { const a = findArea(aId); return a && a.stages.find(s => s.id === sId); };
+const findTask = (aId, sId, tId) => { const s = findStage(aId, sId); return s && s.tasks.find(t => t.id === tId); };
+
+/* ================= ДЕЙСТВИЯ ================= */
+function addTask(aId, sId) {
+  const st = findStage(aId, sId);
+  if (!st) return;
+  const t = { id: uid(), text: 'Новая задача', done: false };
+  st.tasks.push(t);
+  save(); render();
+  focusEditable(`.task[data-t="${t.id}"] .task-text`);
+}
+
+function addStage(aId) {
+  const area = findArea(aId);
+  if (!area) return;
+  const st = { id: uid(), title: 'Новый этап', tasks: [] };
+  area.stages.push(st);
+  save(); render();
+  focusEditable(`.stage[data-s="${st.id}"] .stage-title`);
+}
+
+function focusEditable(selector) {
+  const el = document.querySelector(selector);
+  if (!el) return;
+  el.focus();
+  const range = document.createRange();
+  range.selectNodeContents(el);
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+
+/* ================= СОБЫТИЯ ================= */
+board.addEventListener('change', e => {
+  if (!e.target.matches('input[type=checkbox]')) return;
+  const li = e.target.closest('.task');
+  const t = findTask(li.dataset.a, li.dataset.s, li.dataset.t);
+  if (!t) return;
+  t.done = e.target.checked;
+  save(); render();
+});
+
+board.addEventListener('click', e => {
+  const del = e.target.closest('.del');
+  if (del) {
+    const li = del.closest('.task');
+    const st = findStage(li.dataset.a, li.dataset.s);
+    if (st) {
+      st.tasks = st.tasks.filter(t => t.id !== li.dataset.t);
+      save(); render();
+    }
+    return;
+  }
+
+  const addT = e.target.closest('.add-task');
+  if (addT) {
+    const [aId, sId] = addT.dataset.addTask.split('|');
+    addTask(aId, sId);
+    return;
+  }
+
+  const addS = e.target.closest('.add-stage');
+  if (addS) {
+    addStage(addS.dataset.addStage);
+    return;
+  }
+});
+
+/* Сохранение текста — без перерисовки, чтобы не терять фокус */
+board.addEventListener('focusout', e => {
+  const el = e.target;
+  if (!el.isContentEditable) return;
+  const text = el.textContent.replace(/\s+/g, ' ').trim() || 'Без названия';
+
+  if (el.classList.contains('task-text')) {
+    const li = el.closest('.task');
+    const t = findTask(li.dataset.a, li.dataset.s, li.dataset.t);
+    if (t) t.text = text;
+  } else if (el.classList.contains('stage-title')) {
+    const st = findStage(el.closest('.stage').dataset.a, el.closest('.stage').dataset.s);
+    if (st) st.title = text;
+  } else if (el.classList.contains('area-title')) {
+    const area = findArea(el.closest('.area').dataset.a);
+    if (area) area.title = text;
+  }
+  save();
+});
+
+board.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.isContentEditable) {
+    e.preventDefault();
+    e.target.blur();
+  }
+});
+
+hideDoneCb.addEventListener('change', render);
+
+/* ================= ЭКСПОРТ / ИМПОРТ / СБРОС ================= */
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'psycenter-map-' + new Date().toISOString().slice(0, 10) + '.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+
+document.getElementById('importBtn').addEventListener('click', () => {
+  document.getElementById('importFile').click();
+});
+
+document.getElementById('importFile').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const parsed = JSON.parse(ev.target.result);
+      if (!Array.isArray(parsed) || !parsed.length) throw new Error('bad format');
+      state = parsed;
+      save(); render();
+    } catch (err) {
+      alert('Не удалось загрузить файл: неверный формат.');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  if (!confirm('Сбросить все отметки и вернуть исходную карту?')) return;
+  state = buildState();
+  save(); render();
+});
+
+/* ================= СТАРТ ================= */
+render();
+</script>
+</body>
+</html>
